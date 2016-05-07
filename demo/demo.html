@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link href="css/styles.css" rel="stylesheet" type="text/css">
+
+    <title>JLoop Widget API Demo</title>
+  </head>
+  <body>
+    <div id="jloop-chat-0"></div>
+
+    <script type="text/javascript" src="../api/jloop-compiled.js"></script>
+    <script type="text/javascript" src="jloop-demo-compiled.js"></script>
+
+    <script type="text/javascript">
+      (function() {
+        var jlChat = jldemo.jLoopClassic({
+          parentElementId: "jloop-chat-0",
+          customerId: "d05505ad-a85f-4673-9c5a-ba37bced1a55"
+        });
+      })();
+    </script>
+  </body>
+</html>
