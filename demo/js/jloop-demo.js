@@ -49,7 +49,7 @@ function jLoopClassic(spec, my) {
     });
   },
   function(status) {
-    console.log("Error retrieving agents list");
+    console.log("Error retrieving agents list. Server returned code " + status);
   });
 
   function _appendVisitorMsg(msg) {
@@ -84,7 +84,8 @@ function jLoopClassic(spec, my) {
   }
 
   function _onClose() {
-    that.closeConnection();
+    var agentId = _eSctAgents.value;
+    that.closeConnection(agentId);
   }
 
   function _onAgentStatusChange(e) {

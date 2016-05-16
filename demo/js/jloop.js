@@ -41,9 +41,11 @@ jLoopChat = function(spec, my) {
     my.websocket.send(JSON.stringify(msg));
   };
 
-  that.closeConnection = function() {
+  that.closeConnection = function(agentId) {
     var event = new model.VisitorStatusChange({
       visitorId: my.visitorId,
+      customerId: my.customerId,
+      agentId: agentId,
       status: "offline"
     });
 

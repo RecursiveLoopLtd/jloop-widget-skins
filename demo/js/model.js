@@ -31,6 +31,8 @@ utils.inherits(AgentMessage, Event);
 VisitorStatusChange = function(spec) {
   Event.call(this, "VisitorStatusChange");
   this.visitorId = spec.visitorId;
+  this.customerId = spec.customerId;
+  this.agentId = spec.agentId;
   this.status = spec.status;
   this.timestamp = spec.timestamp || new Date().getTime();
 };
