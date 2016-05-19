@@ -1,10 +1,19 @@
+/**
+* Contains constructor functions for objects sent and received
+* to/from the server. Each function takes a spec object, which
+* can either be an existing object or a freshly parsed JSON
+* object (i.e. containing just string and object fields).
+*
+* @module model
+*/
+
 var utils = require("./utils");
 
-Event = function(eventType) {
+var Event = function(eventType) {
   this.eventType = eventType;
 };
 
-VisitorMessage = function(spec) {
+function VisitorMessage(spec) {
   Event.call(this, "VisitorMessage");
   this.customerId = spec.customerId;
   this.agentId = spec.agentId;
@@ -16,7 +25,7 @@ VisitorMessage = function(spec) {
 
 utils.inherits(VisitorMessage, Event);
 
-AgentMessage = function(spec) {
+function AgentMessage(spec) {
   Event.call(this, "AgentMessage");
   this.customerId = spec.customerId;
   this.agentId = spec.agentId;
@@ -28,7 +37,7 @@ AgentMessage = function(spec) {
 
 utils.inherits(AgentMessage, Event);
 
-VisitorStatusChange = function(spec) {
+function VisitorStatusChange(spec) {
   Event.call(this, "VisitorStatusChange");
   this.visitorId = spec.visitorId;
   this.customerId = spec.customerId;
@@ -39,7 +48,7 @@ VisitorStatusChange = function(spec) {
 
 utils.inherits(VisitorStatusChange, Event);
 
-AgentStatusChange = function() {
+function AgentStatusChange(spec) {
   Event.call(this, "AgentStatusChange");
   this.agentId = spec.agentId;
   this.status = spec.status;
@@ -48,8 +57,23 @@ AgentStatusChange = function() {
 
 utils.inherits(AgentStatusChange, Event);
 
-AgentList = function() {
+function Agent(spec) {
+  this.agentId = spec.agentId;
+  this.customerId = spec.customerId;
+  this.displayName = spec.displayName;
+  this.welcomeMessage = spec.welcomeMessage;
+  this.status = spec.status;
+};
 
+function AgentList(spec) {
+  this.agents = spec.agents.map(function(agent) {
+    new Agent(agent);
+  }) || [];
+};
+
+function ServerEndpoint(spec) {
+  this.nodeId = spec.nodeId;
+  this.url = spec.url;
 };
 
 module.exports = {
@@ -58,6 +82,8 @@ module.exports = {
   AgentMessage: AgentMessage,
   VisitorStatusChange: VisitorStatusChange,
   AgentStatusChange: AgentStatusChange,
-  AgentList: AgentList
+  Agent: Agent,
+  AgentList: AgentList,
+  ServerEndpoint: ServerEndpoint
 };
 

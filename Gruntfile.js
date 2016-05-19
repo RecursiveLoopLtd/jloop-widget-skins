@@ -137,7 +137,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask("clean", ["shell"]);
-  grunt.registerTask("build", ["sass", "browserify", "uglify", "copy:demo"]);
   grunt.registerTask("docs", ["yuidoc"]);
   grunt.registerTask("test", ["karma:unit_auto"]);
+  grunt.registerTask("build", ["test", "docs", "sass", "browserify", "uglify", "copy:demo"]);
 };

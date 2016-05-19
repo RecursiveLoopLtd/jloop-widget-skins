@@ -1,5 +1,7 @@
 var jloop = require("./jloop");
 var model = require("./model");
+var session = require("./session");
+var utils = require("./utils");
 
 var WIDGET_HTML =
   "<div class='jloop'>" +
@@ -17,6 +19,7 @@ var WIDGET_HTML =
 
   "    <input type='submit' value='Send'>" +
   "    <button type='button' class='jl-btn-close'>Close Connection</button>" +
+  "    <button type='button' class='jl-btn-clear-session'>Clear session</button>" +
 
   "  </form>" +
   "</div>";
@@ -24,7 +27,7 @@ var WIDGET_HTML =
 function jLoopClassic(spec, my) {
   my = my || {};
 
-  var that = jLoopChat(spec, my);
+  var that = jloop.jLoopChat(spec, my);
 
   var _eRoot = document.getElementById(spec.parentElementId);
   _eRoot.innerHTML = WIDGET_HTML;
@@ -35,35 +38,34 @@ function jLoopClassic(spec, my) {
   var _eTxtMessage = _eRoot.getElementsByClassName("jl-txt-message")[0];
   var _eBtnClose = _eRoot.getElementsByClassName("jl-btn-close")[0];
 
+  var _eBtnClearSession = _eRoot.getElementsByClassName("jl-btn-clear-session")[0]; // TODO
+  _eBtnClearSession.onclick = function() {
+    session.setSession(new session.Session());
+    return false;
+  };
+
   // Maps agent IDs to agents
   var _agents = {};
 
-  that.fetchAgents(function(data) {
-    data.agents.forEach(function(agent) {
-      _agents[agent.agentId] = agent;
+  function _appendToTranscript(event) {
+    if (event.eventType == "VisitorMessage" || event.eventType == "AgentMessage") {
+      _eTranscript.innerHTML +=
+        "<span class='jl-timestamp'>" + new Date(event.timestamp).toTimeString().slice(0, 9) + "</span>";
 
-      var opt = document.createElement("option");
-      opt.text = agent.displayName;
-      opt.value = agent.agentId;
-      _eSctAgents.add(opt);
-    });
-  },
-  function(status) {
-    console.log("Error retrieving agents list. Server returned code " + status);
-  });
+      if (event.eventType == "VisitorMessage") {
+        _eTranscript.innerHTML +=
+          "<span class='jl-visitor-name'>" + event.visitorName + "</span> ";
+      }
+      else if (event.eventType == "AgentMessage") {
+        var agentName = _agents[event.agentId].displayName;
 
-  function _appendVisitorMsg(msg) {
-    _eTranscript.innerHTML +=
-      "<span class='jl-timestamp'>" + new Date(msg.timestamp).toTimeString().slice(0, 9) + "</span> " +
-      "<span class='jl-visitor-name'>" + msg.visitorName + "</span> " +
-      "<span class='jl-visitor-msg'>" + msg.message + "</span><br>";
-  }
+        _eTranscript.innerHTML +=
+          "<span class='jl-agent-name'>" + agentName + "</span> ";
+      }
 
-  function _appendAgentMsg(agentName, msg) {
-    _eTranscript.innerHTML +=
-      "<span class='jl-timestamp'>" + new Date(msg.timestamp).toTimeString().slice(0, 9) + "</span> " +
-      "<span class='jl-agent-name'>" + agentName + "</span> " +
-      "<span class='jl-agent-msg'>" + msg.message + "</span><br>";
+      _eTranscript.innerHTML +=
+        "<span class='jl-agent-msg'>" + event.message + "</span><br>";
+    }
   }
 
   function _onSend() {
@@ -76,9 +78,14 @@ function jLoopClassic(spec, my) {
       timestamp: new Date().getTime()
     });
 
+    var sess = session.getSession();
+    sess.visitorName = _eTxtName.value;
+    sess.transcript.addEvent(msg);
+    session.setSession(sess);
+
     that.sendMessage(msg);
     _eTxtMessage.value = "";
-    _appendVisitorMsg(msg);
+    _appendToTranscript(msg);
 
     return false;
   }
@@ -86,20 +93,27 @@ function jLoopClassic(spec, my) {
   function _onClose() {
     var agentId = _eSctAgents.value;
     that.closeConnection(agentId);
+
+    // TODO: Append to transcript
   }
 
   function _onAgentStatusChange(e) {
-    
+    _appendToTranscript(e);
+
+    // TODO
   }
 
   function _onAgentMessage(e) {
-    var agentName = _agents[e.agentId].displayName;
-    _appendAgentMsg(agentName, e);
+    _appendToTranscript(e);
   }
 
-  my.websocket.onmessage = function(m) {
+  function _onMessage(m) {
     var e = JSON.parse(m.data);
     console.log(e);
+
+    var sess = session.getSession();
+    sess.transcript.addEvent(e);
+    session.setSession(sess);
 
     if (e.eventType == "AgentMessage") {
       _onAgentMessage(e);
@@ -111,6 +125,55 @@ function jLoopClassic(spec, my) {
       console.log("Unknown event type '" + e.eventType + "'"); // TODO
     }
   };
+
+  function _loadName() {
+    var sess = session.getSession();
+    _eTxtName.value = sess.visitorName;
+  }
+
+  function _loadAgents() {
+    var result = new utils.Future();
+
+    that.fetchAgents(function(data) {
+      data.agents.forEach(function(agent) {
+        _agents[agent.agentId] = agent;
+
+        var opt = document.createElement("option");
+        opt.text = agent.displayName;
+        opt.value = agent.agentId;
+        _eSctAgents.add(opt);
+      });
+
+      my.websocket.onmessage = _onMessage;
+      result.ready();
+    },
+    function(status) {
+      console.log("Error retrieving agents list. Server returned code " + status);
+      result.ready();
+    });
+
+    return result;
+  }
+
+  function _loadTranscript() {
+    var sess = session.getSession();
+
+    _eTranscript.innerHTML = "";
+    for (var i = 0; i < sess.transcript.events.length; ++i) {
+      var event = sess.transcript.events[i];
+      _appendToTranscript(event);
+    }
+  }
+
+  that.initialise(function() {
+    _loadName();
+    _loadAgents().then(function() {
+      _loadTranscript();
+    });
+  },
+  function() {
+    console.log("Error initialising jloopChat");
+  });
 
   _eFrmMain.onsubmit = _onSend;
   _eBtnClose.onclick = _onClose;

@@ -1,27 +1,78 @@
 var model = require("./model");
+var session = require("./session");
+var utils = require("./utils");
 
-SERVER_BASE_URI = "localhost:9090/core-main/api";
-
-function generateUuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0;
-    var v = c == 'x' ? r : (r & 0x3 | 0x8);
-
-    return v.toString(16);
-  });
+function JLoopException(msg) {
+  this.message = msg;
 }
 
-jLoopChat = function(spec, my) {
+function ServerException(msg, status) {
+  JLoopException.call(this, msg);
+  this.status = status;
+}
+
+utils.inherits(ServerException, JLoopException);
+
+var SERVER_LOOKUP_BASE_URI ="localhost:9090/core-lookup/api";
+
+var jLoopChat = function(spec, my) {
   my = my || {};
+
+  var sess = session.getSession();
+
+  my.initialised = false;
   my.customerId = spec.customerId;
-  my.visitorId = generateUuid(); // TODO: Retrieve from cookie
-  my.websocket = new WebSocket("ws://" + SERVER_BASE_URI + "/customer/" + my.customerId + "/socket/" + my.visitorId);
+  my.visitorId = sess.visitorId;
+  my.websocket = null;
+  my.endpoint = null;
 
   var that = {};
 
-  that.fetchAgents = function(fnSuccess, fnFailure) {
+  function _checkInitialised() {
+    if (my.initialised === false) {
+      throw new JLoopException("jLoopChat not initialised");
+    }
+  }
+
+  /**
+  * @method initialise
+  * @param {Function} fnSuccess A no-argument function
+  * @param {Function} fnFailure (Optional) A no argument function
+  */
+  that.initialise = function(fnSuccess, fnFailure) {
     var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "http://" + SERVER_BASE_URI + "/customer/" + my.customerId + "/agent", true);
+    xhttp.open("GET", "http://" + SERVER_LOOKUP_BASE_URI + "/endpoint?cid=" + my.customerId, true);
+    xhttp.onreadystatechange = function() {
+      if (xhttp.readyState == 4) {
+        if (xhttp.status == 200) {
+          my.endpoint = new model.ServerEndpoint(JSON.parse(xhttp.responseText));
+          var baseUrl = my.endpoint.url.replace(/^.*?:\/\//g, "");
+
+          my.websocket = new WebSocket("ws://" + baseUrl + "/api/customer/" + my.customerId + "/socket/" + my.visitorId);
+          my.initialised = true;
+
+          fnSuccess();
+        }
+        else {
+          if (fnFailure) {
+            fnFailure();
+          }
+        }
+      }
+    };
+    xhttp.send();
+  };
+
+  /**
+  * @method fetchAgents
+  * @param {Function} fnSuccess A function that accepts an AgentList
+  * @param {Function} fnFailure A function that accepts a numeric status code
+  */
+  that.fetchAgents = function(fnSuccess, fnFailure) {
+    _checkInitialised();
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", my.endpoint.url + "/api/customer/" + my.customerId + "/agent", true);
     xhttp.onreadystatechange = function() {
       if (xhttp.readyState == 4) {
         if (xhttp.status == 200) {
@@ -36,12 +87,16 @@ jLoopChat = function(spec, my) {
   };
 
   that.sendMessage = function(msg) {
+    _checkInitialised();
+
     console.log("Sending...");
     console.log(msg);
     my.websocket.send(JSON.stringify(msg));
   };
 
   that.closeConnection = function(agentId) {
+    _checkInitialised();
+
     var event = new model.VisitorStatusChange({
       visitorId: my.visitorId,
       customerId: my.customerId,
@@ -59,6 +114,8 @@ jLoopChat = function(spec, my) {
 };
 
 module.exports = {
-  jLoopChat: jLoopChat
+  jLoopChat: jLoopChat,
+  JLoopException: JLoopException,
+  ServerException: ServerException
 };
 
