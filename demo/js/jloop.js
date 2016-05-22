@@ -1,17 +1,7 @@
 var model = require("./model");
 var session = require("./session");
 var utils = require("./utils");
-
-function JLoopException(msg) {
-  this.message = msg;
-}
-
-function ServerException(msg, status) {
-  JLoopException.call(this, msg);
-  this.status = status;
-}
-
-utils.inherits(ServerException, JLoopException);
+var err = require("./exceptions");
 
 var SERVER_LOOKUP_BASE_URI ="localhost:9090/core-lookup/api";
 
@@ -23,7 +13,7 @@ var jLoopChat = function(spec, my) {
 
   function _checkInitialised() {
     if (my.initialised === false) {
-      throw new JLoopException("jLoopChat not initialised");
+      throw new err.JLoopException("jLoopChat not initialised");
     }
   }
 
@@ -43,9 +33,9 @@ var jLoopChat = function(spec, my) {
     var e = JSON.parse(m.data);
     console.log(e);
 
-    var sess = session.getSession();
-    sess.transcript.addEvent(e);
-    session.setSession(sess);
+    var transcript = session.get("transcript", session.Transcript);
+    transcript.addEvent(e);
+    session.put("transcript", transcript);
 
     if (e.eventType == "AgentMessage") {
       _onAgentMessage(e);
@@ -54,7 +44,7 @@ var jLoopChat = function(spec, my) {
       _onAgentStatusChange(e);
     }
     else {
-      throw new JLoopException("Unknown event type '" + eventType + "'");
+      throw new err.JLoopException("Unknown event type '" + eventType + "'");
     }
   }
 
@@ -85,8 +75,7 @@ var jLoopChat = function(spec, my) {
   * @param {Function} fnFailure (Optional) A no argument function
   */
   that.initialise = function(fnSuccess, fnFailure) {
-    var sess = session.getSession();
-    that.visitorId = sess.visitorId;
+    that.visitorId = session.get("visitorId");
 
     var xhttp = new XMLHttpRequest();
     xhttp.open("GET", "http://" + SERVER_LOOKUP_BASE_URI + "/endpoint?cid=" + that.customerId, true);
@@ -163,8 +152,6 @@ var jLoopChat = function(spec, my) {
 };
 
 module.exports = {
-  jLoopChat: jLoopChat,
-  JLoopException: JLoopException,
-  ServerException: ServerException
+  jLoopChat: jLoopChat
 };
 

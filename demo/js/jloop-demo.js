@@ -85,10 +85,10 @@ function widgetOpen(jl, root) {
       timestamp: new Date().getTime()
     });
 
-    var sess = session.getSession();
-    sess.visitorName = _eTxtName.value;
-    sess.transcript.addEvent(msg);
-    session.setSession(sess);
+    session.put("visitorName", _eTxtName.value);
+    var transcript = session.get("transcript", session.Transcript);
+    transcript.addEvent(msg);
+    session.put("transcript", transcript);
 
     _jl.sendMessage(msg);
     _eTxtMessage.value = "";
@@ -115,8 +115,7 @@ function widgetOpen(jl, root) {
   }
 
   function _loadName() {
-    var sess = session.getSession();
-    _eTxtName.value = sess.visitorName;
+    _eTxtName.value = session.get("visitorName");
   }
 
   function _loadAgents() {
@@ -143,11 +142,11 @@ function widgetOpen(jl, root) {
   }
 
   function _loadTranscript() {
-    var sess = session.getSession();
+    var transcript = session.get("transcript", session.Transcript);
 
     _eTranscript.innerHTML = "";
-    for (var i = 0; i < sess.transcript.events.length; ++i) {
-      var event = sess.transcript.events[i];
+    for (var i = 0; i < transcript.events.length; ++i) {
+      var event = transcript.events[i];
       _appendToTranscript(event);
     }
   }
@@ -193,7 +192,7 @@ function widgetOpen(jl, root) {
 
     _eBtnClearSession = _eRoot.getElementsByClassName("jl-btn-clear-session")[0]; // TODO
     _eBtnClearSession.onclick = function() {
-      session.setSession(new session.Session());
+      session.clear();
       return false;
     };
 

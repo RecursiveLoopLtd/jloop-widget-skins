@@ -7,6 +7,7 @@
 * @module model
 */
 
+var err = require("./exceptions");
 var utils = require("./utils");
 
 var Event = function(eventType) {
@@ -76,6 +77,25 @@ function ServerEndpoint(spec) {
   this.url = spec.url;
 };
 
+function fromPojo(pojo) {
+  switch (pojo.eventType) {
+    case "VisitorMessage":
+      return new VisitorMessage(pojo);
+    break;
+    case "AgentMessage":
+      return new AgentMessage(pojo);
+    break;
+    case "VisitorStatusChange":
+      return new VisitorStatusChange(pojo);
+    break;
+    case "AgentStatusChange":
+      return new AgentStatusChange(pojo);
+    break;
+    default:
+      throw new err.JLoopException("No such model type");
+  };
+}
+
 module.exports = {
   Event: Event,
   VisitorMessage: VisitorMessage,
@@ -84,6 +104,7 @@ module.exports = {
   AgentStatusChange: AgentStatusChange,
   Agent: Agent,
   AgentList: AgentList,
-  ServerEndpoint: ServerEndpoint
+  ServerEndpoint: ServerEndpoint,
+  fromPojo: fromPojo
 };
 
