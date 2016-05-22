@@ -1,31 +1,71 @@
-.jl-transcript {
-  height: 200px;
-  width: 400px;
-  background-color: lightGray;
-  overflow-y: scroll;
-}
+.jloop {
+  position: fixed;
+  right: 0;
+  top: 200px;
 
-.jl-txt-message {
-  heigth: 80px;
-  width: 400px;
-}
+  &.jl-closed {
+    width: 100px;
+    height: 200px;
 
-.jl-timestamp {
-  color: tomato;
-}
+    .jl-tab {
+      position: absolute;
+      width: 50px;
+      height: 200px;
+      top: 0;
+      right: 0;
+      background-color: teal;
+    }
 
-.jl-visitor-message {
+    &:hover .jl-tab {
+      width: 80px;
+    }
+  }
 
-}
+  &.jl-open {
+    width: 440px;
+    height: 400px;
 
-.jl-agent-message {
+    .jl-tab {
+      float: left;
+      height: 400px;
+      width: 40px;
+      background-color: teal;
+    }
 
-}
+    .jl-frm-main {
+      float: right;
 
-.jl-visitor-name {
-  color: green;
-}
+      .jl-transcript {
+        width: 400px;
+        height: 200px;
+        background-color: lightGray;
+        overflow-y: scroll;
 
-.jl-agent-name {
-  color: teal;
+        .jl-timestamp {
+          color: tomato;
+        }
+
+        .jl-visitor-message {
+
+        }
+
+        .jl-agent-message {
+
+        }
+
+        .jl-visitor-name {
+          color: green;
+        }
+
+        .jl-agent-name {
+          color: teal;
+        }
+      }
+
+      .jl-txt-message {
+        height: 80px;
+        width: 392px;
+      }
+    }
+  }
 }

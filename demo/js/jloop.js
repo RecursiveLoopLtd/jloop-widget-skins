@@ -16,17 +16,10 @@ utils.inherits(ServerException, JLoopException);
 var SERVER_LOOKUP_BASE_URI ="localhost:9090/core-lookup/api";
 
 var jLoopChat = function(spec, my) {
-  my = my || {};
-
-  var sess = session.getSession();
-
-  my.initialised = false;
-  my.customerId = spec.customerId;
-  my.visitorId = sess.visitorId;
-  my.websocket = null;
-  my.endpoint = null;
-
-  var that = {};
+  // Private
+  //
+  var _fnOnAgentMessage = null;
+  var _fnOnAgentStatusChange = null;
 
   function _checkInitialised() {
     if (my.initialised === false) {
@@ -34,21 +27,77 @@ var jLoopChat = function(spec, my) {
     }
   }
 
+  function _onAgentMessage(e) {
+    if (_fnOnAgentMessage) {
+      _fnOnAgentMessage(e);
+    }
+  }
+
+  function _onAgentStatusChange(e) {
+    if (_fnOnAgentStatusChange) {
+      _fnOnAgentStatusChange(e);
+    }
+  }
+
+  function _onMessage(m) {
+    var e = JSON.parse(m.data);
+    console.log(e);
+
+    var sess = session.getSession();
+    sess.transcript.addEvent(e);
+    session.setSession(sess);
+
+    if (e.eventType == "AgentMessage") {
+      _onAgentMessage(e);
+    }
+    else if (e.eventType == "AgentStatusChange") {
+      _onAgentStatusChange(e);
+    }
+    else {
+      throw new JLoopException("Unknown event type '" + eventType + "'");
+    }
+  }
+
+  // Protected
+  //
+  my = my || {};
+  my.initialised = false;
+  my.websocket = null;
+  my.endpoint = null;
+
+  // Public
+  //
+  var that = {};
+  that.customerId = spec.customerId;
+  that.visitorId = null;
+
+  that.setOnAgentMessage = function(fn) {
+    _fnOnAgentMessage = fn;
+  };
+
+  that.setOnAgentStatusChange = function(fn) {
+    _fnOnAgentStatusChange = fn;
+  };
+
   /**
   * @method initialise
   * @param {Function} fnSuccess A no-argument function
   * @param {Function} fnFailure (Optional) A no argument function
   */
   that.initialise = function(fnSuccess, fnFailure) {
+    var sess = session.getSession();
+    that.visitorId = sess.visitorId;
+
     var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "http://" + SERVER_LOOKUP_BASE_URI + "/endpoint?cid=" + my.customerId, true);
+    xhttp.open("GET", "http://" + SERVER_LOOKUP_BASE_URI + "/endpoint?cid=" + that.customerId, true);
     xhttp.onreadystatechange = function() {
       if (xhttp.readyState == 4) {
         if (xhttp.status == 200) {
           my.endpoint = new model.ServerEndpoint(JSON.parse(xhttp.responseText));
           var baseUrl = my.endpoint.url.replace(/^.*?:\/\//g, "");
 
-          my.websocket = new WebSocket("ws://" + baseUrl + "/api/customer/" + my.customerId + "/socket/" + my.visitorId);
+          my.websocket = new WebSocket("ws://" + baseUrl + "/api/customer/" + that.customerId + "/socket/" + that.visitorId);
+          my.websocket.onmessage = _onMessage;
           my.initialised = true;
 
           fnSuccess();
@@ -72,7 +121,7 @@ var jLoopChat = function(spec, my) {
     _checkInitialised();
 
     var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", my.endpoint.url + "/api/customer/" + my.customerId + "/agent", true);
+    xhttp.open("GET", my.endpoint.url + "/api/customer/" + that.customerId + "/agent", true);
     xhttp.onreadystatechange = function() {
       if (xhttp.readyState == 4) {
         if (xhttp.status == 200) {
@@ -98,8 +147,8 @@ var jLoopChat = function(spec, my) {
     _checkInitialised();
 
     var event = new model.VisitorStatusChange({
-      visitorId: my.visitorId,
-      customerId: my.customerId,
+      visitorId: that.visitorId,
+      customerId: that.customerId,
       agentId: agentId,
       status: "offline"
     });

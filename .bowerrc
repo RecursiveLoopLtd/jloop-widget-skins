@@ -1,4 +1,4 @@
 {
-  "directory": "build/vendor",
+  "directory": "vendor",
   "interactive": false
 }
