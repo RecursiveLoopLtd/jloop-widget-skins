@@ -1,4 +1,4 @@
-//var $ = require("../../vendor/jquery/dist/jquery");
+var $ = require("../../vendor/jquery/dist/jquery");
 var jloop = require("./jloop");
 var model = require("./model");
 var session = require("./session");
@@ -25,8 +25,8 @@ function widgetClosed(jl, root) {
     "</div>";
 
   that.activate = function() {
-    _eTab = _eRoot.getElementsByClassName("jl-tab")[0];
-    _eTab.onclick = _onClick;
+    _eTab = _eRoot.find(".jl-tab");
+    _eTab.on("click", _onClick);
   };
 
   that.setOnClick = function(fn) {
@@ -56,49 +56,49 @@ function widgetOpen(jl, root) {
 
   function _appendToTranscript(event) {
     if (event.eventType == "VisitorMessage" || event.eventType == "AgentMessage") {
-      _eTranscript.innerHTML +=
-        "<span class='jl-timestamp'>" + new Date(event.timestamp).toTimeString().slice(0, 9) + "</span>";
+      _eTranscript.append(
+        "<span class='jl-timestamp'>" + new Date(event.timestamp).toTimeString().slice(0, 9) + "</span>");
 
       if (event.eventType == "VisitorMessage") {
-        _eTranscript.innerHTML +=
-          "<span class='jl-visitor-name'>" + event.visitorName + "</span> ";
+        _eTranscript.append(
+          "<span class='jl-visitor-name'>" + event.visitorName + "</span> ");
       }
       else if (event.eventType == "AgentMessage") {
         var agentName = _agents[event.agentId].displayName;
 
-        _eTranscript.innerHTML +=
-          "<span class='jl-agent-name'>" + agentName + "</span> ";
+        _eTranscript.append(
+          "<span class='jl-agent-name'>" + agentName + "</span> ");
       }
 
-      _eTranscript.innerHTML +=
-        "<span class='jl-agent-msg'>" + event.message + "</span><br>";
+      _eTranscript.append(
+        "<span class='jl-agent-msg'>" + event.message + "</span><br>");
     }
   }
 
   function _onSend() {
     var msg = new model.VisitorMessage({
       customerId: _jl.customerId,
-      agentId: _eSctAgents.value,
+      agentId: _eSctAgents.val(),
       visitorId: _jl.visitorId,
-      visitorName: _eTxtName.value,
-      message: _eTxtMessage.value,
+      visitorName: _eTxtName.val(),
+      message: _eTxtMessage.val(),
       timestamp: new Date().getTime()
     });
 
-    session.put("visitorName", _eTxtName.value);
+    session.put("visitorName", _eTxtName.val());
     var transcript = session.get("transcript", session.Transcript);
     transcript.addEvent(msg);
     session.put("transcript", transcript);
 
     _jl.sendMessage(msg);
-    _eTxtMessage.value = "";
+    _eTxtMessage.val("");
     _appendToTranscript(msg);
 
     return false;
   }
 
   function _onClose() {
-    var agentId = _eSctAgents.value;
+    var agentId = _eSctAgents.val();
     _jl.closeConnection(agentId);
 
     // TODO: Append to transcript
@@ -115,7 +115,7 @@ function widgetOpen(jl, root) {
   }
 
   function _loadName() {
-    _eTxtName.value = session.get("visitorName");
+    _eTxtName.val(session.get("visitorName"));
   }
 
   function _loadAgents() {
@@ -125,10 +125,10 @@ function widgetOpen(jl, root) {
       data.agents.forEach(function(agent) {
         _agents[agent.agentId] = agent;
 
-        var opt = document.createElement("option");
-        opt.text = agent.displayName;
-        opt.value = agent.agentId;
-        _eSctAgents.add(opt);
+        _eSctAgents.append($("<option>", {
+          text: agent.displayName,
+          value: agent.agentId
+        }));
       });
 
       result.ready();
@@ -144,7 +144,7 @@ function widgetOpen(jl, root) {
   function _loadTranscript() {
     var transcript = session.get("transcript", session.Transcript);
 
-    _eTranscript.innerHTML = "";
+    _eTranscript.html("");
     for (var i = 0; i < transcript.events.length; ++i) {
       var event = transcript.events[i];
       _appendToTranscript(event);
@@ -182,19 +182,19 @@ function widgetOpen(jl, root) {
     "</div>";
 
   that.activate = function() {
-    _eFrmMain = _eRoot.getElementsByClassName("jl-frm-main")[0];
-    _eTxtName = _eRoot.getElementsByClassName("jl-txt-name")[0];
-    _eSctAgents = _eRoot.getElementsByClassName("jl-sct-agents")[0];
-    _eTranscript = _eRoot.getElementsByClassName("jl-transcript")[0];
-    _eTxtMessage = _eRoot.getElementsByClassName("jl-txt-message")[0];
-    _eBtnClose = _eRoot.getElementsByClassName("jl-btn-close")[0];
-    _eTab = _eRoot.getElementsByClassName("jl-tab")[0];
+    _eFrmMain = _eRoot.find(".jl-frm-main");
+    _eTxtName = _eRoot.find(".jl-txt-name");
+    _eSctAgents = _eRoot.find(".jl-sct-agents");
+    _eTranscript = _eRoot.find(".jl-transcript");
+    _eTxtMessage = _eRoot.find(".jl-txt-message");
+    _eBtnClose = _eRoot.find(".jl-btn-close");
+    _eTab = _eRoot.find(".jl-tab");
 
-    _eBtnClearSession = _eRoot.getElementsByClassName("jl-btn-clear-session")[0]; // TODO
-    _eBtnClearSession.onclick = function() {
+    _eBtnClearSession = _eRoot.find(".jl-btn-clear-session"); // TODO
+    _eBtnClearSession.on("click", function() {
       session.clear();
       return false;
-    };
+    });
 
     _jl.initialise(function() {
       _loadName();
@@ -209,9 +209,9 @@ function widgetOpen(jl, root) {
       console.log("Error initialising jloopChat");
     });
 
-    _eFrmMain.onsubmit = _onSend;
-    _eBtnClose.onclick = _onClose;
-    _eTab.onclick = _onClick;
+    _eFrmMain.on("submit", _onSend);
+    _eBtnClose.on("click", _onClose);
+    _eTab.on("click", _onClick);
   };
 
   that.deactivate = function() {};
@@ -231,7 +231,7 @@ function jLoopClassic(spec, my) {
 
   // Private
   //
-  var _eRoot = document.getElementById(spec.parentElementId);
+  var _eRoot = $("#" + spec.parentElementId);
 
   var _states = [
     widgetClosed(my.jloop, _eRoot),
@@ -254,7 +254,7 @@ function jLoopClassic(spec, my) {
       _currentState.deactivate();
     }
     _currentState = _states[idx];
-    _eRoot.innerHTML = _currentState.html;
+    _eRoot.html(_currentState.html);
     _currentState.activate();
   }
 
