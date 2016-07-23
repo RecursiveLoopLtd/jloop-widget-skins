@@ -1,3 +1,7 @@
+/**
+ * @module utils
+ */
+
 function inherits(ctor, superCtor) {
   ctor.prototype = Object.create(superCtor.prototype);
   ctor.prototype.constructor = ctor;
@@ -11,21 +15,19 @@ function bind(context, fn) {
   };
 }
 
-function Future() {
-  var _fn = null;
-
-  this.then = function(fn) {
-    _fn = fn;
+function dictToArray(dict) {
+  var res = [];
+  for (key in dict) {
+    if (dict.hasOwnProperty(key)) {
+      res.push({ key: key, value: dict[key] });
+    }
   }
-
-  this.ready = function() {
-    return _fn.apply(null, arguments);
-  };
+  return res;
 }
 
 module.exports = {
   inherits: inherits,
   bind: bind,
-  Future: Future
+  dictToArray: dictToArray
 };
 

@@ -1,0 +1,52 @@
+@mixin box-sizing($arg) {
+  -webkit-box-sizing: $arg;
+  -moz-box-sizing: $arg;
+  -o-box-sizing: $arg;
+  box-sizing: $arg;
+}
+
+@mixin transition($args...) {
+  -webkit-transition: $args;
+  -moz-transition: $args;
+  -o-transition: $args;
+  transition: $args;
+}
+
+@mixin animation($args...) {
+  -webkit-animation: $args;
+  -moz-transition: $args;
+  -o-transition: $args;
+  animation: $args;
+}
+
+@mixin keyframes($name) {
+  @-webkit-keyframes #{$name} {
+    @content;
+  }
+
+  @-moz-keyframes #{$name} {
+    @content;
+  }
+
+  @-o-keyframes #{$name} {
+    @content;
+  }
+
+  @keyframes #{$name} {
+    @content;
+  }
+}
+
+@mixin linear-gradient($direction, $colours...) {
+  background: -webkit-linear-gradient($direction, $colours);
+  background: -moz-linear-gradient($direction, $colours);
+  background: -o-linear-gradient($direction, $colours);
+  background: linear-gradient($direction, $colours);
+}
+
+@mixin calc($prop, $exp) {
+  #{$prop}: -webkit-calc(#{$exp});
+  #{$prop}: -moz-calc(#{$exp});
+  #{$prop}: -o-calc(#{$exp});
+  #{$prop}: calc(#{$exp});
+}

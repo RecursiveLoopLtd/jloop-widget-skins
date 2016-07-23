@@ -1,11 +1,11 @@
 /**
-* Contains constructor functions for objects sent and received
-* to/from the server. Each function takes a spec object, which
-* can either be an existing object or a freshly parsed JSON
-* object (i.e. containing just string and object fields).
-*
-* @module model
-*/
+ * Contains constructor functions for objects sent and received
+ * to/from the server. Each function takes a spec object, which
+ * can either be an existing object or a freshly parsed JSON
+ * object (i.e. containing just string and object fields).
+ *
+ * @module model
+ */
 
 var err = require("./exceptions");
 var utils = require("./utils");
@@ -41,6 +41,7 @@ utils.inherits(AgentMessage, Event);
 function VisitorStatusChange(spec) {
   Event.call(this, "VisitorStatusChange");
   this.visitorId = spec.visitorId;
+  this.visitorName = spec.visitorName;
   this.customerId = spec.customerId;
   this.agentId = spec.agentId;
   this.status = spec.status;
@@ -58,17 +59,23 @@ function AgentStatusChange(spec) {
 
 utils.inherits(AgentStatusChange, Event);
 
+function AgentStatus(spec) {
+  this.agentId = spec.agentId;
+  this.status = spec.status;
+  this.timestamp = spec.timestamp || new Date().getTime();
+};
+
 function Agent(spec) {
   this.agentId = spec.agentId;
   this.customerId = spec.customerId;
   this.displayName = spec.displayName;
   this.welcomeMessage = spec.welcomeMessage;
-  this.status = spec.status;
+  this.status = new AgentStatus(spec.status);
 };
 
 function AgentList(spec) {
   this.agents = spec.agents.map(function(agent) {
-    new Agent(agent);
+    return new Agent(agent);
   }) || [];
 };
 
@@ -103,6 +110,7 @@ module.exports = {
   VisitorStatusChange: VisitorStatusChange,
   AgentStatusChange: AgentStatusChange,
   Agent: Agent,
+  AgentStatus: AgentStatus,
   AgentList: AgentList,
   ServerEndpoint: ServerEndpoint,
   fromPojo: fromPojo

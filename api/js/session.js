@@ -32,7 +32,12 @@ function _clear() {
 }
 
 function _get(key, type) {
-  var obj = JSON.parse(localStorage.getItem(_k(key))).value;
+  var item = localStorage.getItem(_k(key));
+  if (item === null) {
+    return null;
+  }
+
+  var obj = JSON.parse(item).value;
   return type != null ? new type(obj) : obj;
 }
 
@@ -44,7 +49,7 @@ function _remove(key) {
   localStorage.removeItem(_k(key));
 }
 
-function _createNewSession() {
+function _createNewSession() { // TODO: Accept name for session
   _clear();
 
   _put("visitorId", _generateUuid());
@@ -58,6 +63,7 @@ function Transcript(spec) {
 
   // List of model.Event objects
   this.events = [];
+  this._key = spec.key || "transcript";
 
   if (spec.events != null) {
     for (var i = 0; i < spec.events.length; ++i) {
@@ -68,6 +74,12 @@ function Transcript(spec) {
 
 Transcript.prototype.addEvent = function(event) {
   this.events.push(event);
+  put(this._key, this);
+};
+
+Transcript.prototype.clear = function() {
+  this.events = [];
+  put(this._key, this);
 };
 
 function remove(key) {

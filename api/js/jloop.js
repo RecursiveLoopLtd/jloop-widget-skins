@@ -5,11 +5,19 @@ var err = require("./exceptions");
 
 var SERVER_LOOKUP_BASE_URI ="localhost:9090/core-lookup/api";
 
+/**
+ * @class JLoopChat
+ */
 var jLoopChat = function(spec, my) {
   // Private
   //
   var _fnOnAgentMessage = null;
   var _fnOnAgentStatusChange = null;
+
+  function _addToTranscript(e) {
+    var transcript = session.get("transcript", session.Transcript);
+    transcript.addEvent(e);
+  }
 
   function _checkInitialised() {
     if (my.initialised === false) {
@@ -33,9 +41,7 @@ var jLoopChat = function(spec, my) {
     var e = JSON.parse(m.data);
     console.log(e);
 
-    var transcript = session.get("transcript", session.Transcript);
-    transcript.addEvent(e);
-    session.put("transcript", transcript);
+    _addToTranscript(e);
 
     if (e.eventType == "AgentMessage") {
       _onAgentMessage(e);
@@ -60,6 +66,10 @@ var jLoopChat = function(spec, my) {
   var that = {};
   that.customerId = spec.customerId;
   that.visitorId = null;
+
+  that.getTranscript = function() {
+    return session.get("transcript", session.Transcript);
+  };
 
   that.setOnAgentMessage = function(fn) {
     _fnOnAgentMessage = fn;
@@ -114,7 +124,7 @@ var jLoopChat = function(spec, my) {
     xhttp.onreadystatechange = function() {
       if (xhttp.readyState == 4) {
         if (xhttp.status == 200) {
-          fnSuccess(JSON.parse(xhttp.responseText));
+          fnSuccess(new model.AgentList(JSON.parse(xhttp.responseText)));
         }
         else {
           fnFailure(xhttp.status);
@@ -124,14 +134,43 @@ var jLoopChat = function(spec, my) {
     xhttp.send();
   };
 
+  /**
+   * @method sendMessage
+   */
   that.sendMessage = function(msg) {
     _checkInitialised();
+
+    _addToTranscript(msg);
 
     console.log("Sending...");
     console.log(msg);
     my.websocket.send(JSON.stringify(msg));
   };
 
+  /**
+   * @method openConnection
+   */
+  that.openConnection = function(visitorName, agentId) {
+    _checkInitialised();
+
+    var event = new model.VisitorStatusChange({
+      visitorId: that.visitorId,
+      customerId: that.customerId,
+      agentId: agentId,
+      status: "online"
+    });
+
+    _addToTranscript(event);
+
+    console.log("Sending..."); // TODO
+    console.log(event);
+
+    my.websocket.send(JSON.stringify(event));
+  };
+
+  /**
+   * @method closeConnection
+   */
   that.closeConnection = function(agentId) {
     _checkInitialised();
 
@@ -141,6 +180,8 @@ var jLoopChat = function(spec, my) {
       agentId: agentId,
       status: "offline"
     });
+
+    _addToTranscript(event);
 
     console.log("Sending..."); // TODO
     console.log(event);
@@ -152,6 +193,8 @@ var jLoopChat = function(spec, my) {
 };
 
 module.exports = {
-  jLoopChat: jLoopChat
+  jLoopChat: jLoopChat,
+  model: model,
+  session: session
 };
 

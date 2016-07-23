@@ -7,6 +7,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-contrib-yuidoc");
+  grunt.loadNpmTasks("grunt-contrib-connect");
+  grunt.loadNpmTasks("grunt-babel");
   grunt.loadNpmTasks("grunt-browserify");
 
   grunt.initConfig({
@@ -32,6 +34,21 @@ module.exports = function(grunt) {
         command: "rm -R <%= apiBuildDir %>/* <%= demoBuildDir %>/*"
       }
     },
+    connect: {
+      server: {
+        options: {
+          hostname: "",
+          port: 8888,
+          keepalive: true,
+          base: {
+            path: "build",
+            options: {
+              index: "demo/demo.html"
+            }
+          }
+        }
+      }
+    },
     sass: {
       demo: {
         options: {
@@ -43,17 +60,31 @@ module.exports = function(grunt) {
         }
       }
     },
+    babel: {
+      options: {
+        sourceMap: true,
+        presets: ["react"]
+      },
+      demo: {
+        files: [{
+          "expand": true,
+          "cwd": "<%= demoSrcDir %>/js",
+          "src": "**/*.js",
+          "dest": "<%= demoBuildDir %>/tmp",
+        }]
+      }
+    },
     browserify: {
       api: {
         files: {
-          "<%= apiBuildDir %>/jloop-compiled.js": [ "<%= apiSrcDir %>/js/**/*.js" ]
+          "<%= apiBuildDir %>/jloop-compiled.js": [ "<%= apiSrcDir %>/**/*.js" ]
         },
         options: {
         }
       },
       demo: {
         files: {
-          "<%= demoBuildDir %>/jloop-demo-compiled.js": [ "<%= demoSrcDir %>/js/**/*.js" ]
+          "<%= demoBuildDir %>/jloop-demo-compiled.js": [ "<%= demoBuildDir %>/tmp/**/*.js" ]
         },
         options: {
         }
@@ -101,7 +132,7 @@ module.exports = function(grunt) {
         files: [
           "<%= apiSrcDir %>/js/**/*.js"
         ],
-        tasks: ["browserify:api", "uglify:api", "docs"]
+        tasks: ["buildJs"]
       },
       demoHtml: {
         files: [
@@ -113,7 +144,7 @@ module.exports = function(grunt) {
         files: [
           "<%= demoSrcDir %>/js/**/*.js"
         ],
-        tasks: ["browserify:demo", "uglify:demo"]
+        tasks: ["buildJs"]
       },
       demoScss: {
         files: [
@@ -139,5 +170,7 @@ module.exports = function(grunt) {
   grunt.registerTask("clean", ["shell"]);
   grunt.registerTask("docs", ["yuidoc"]);
   grunt.registerTask("test", ["karma:unit_auto"]);
-  grunt.registerTask("build", [/*"test", */"docs", "sass", "browserify", "uglify", "copy:demo"]);
+  grunt.registerTask("buildJs", [/*test, */"babel", "browserify", "uglify", "docs"]);
+  grunt.registerTask("build", ["sass", "buildJs", "copy:demo"]);
+  grunt.registerTask("run", ["connect:server"]);
 };
