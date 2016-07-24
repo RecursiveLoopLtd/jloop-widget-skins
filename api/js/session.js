@@ -82,6 +82,10 @@ Transcript.prototype.clear = function() {
   put(this._key, this);
 };
 
+Transcript.prototype.isEmpty = function() {
+  return this.events.length === 0;
+};
+
 function remove(key) {
   if (hasExpired()) {
     _createNewSession();

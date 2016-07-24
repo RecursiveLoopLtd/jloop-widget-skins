@@ -4,7 +4,7 @@ var ReactDOM = require("react-dom");
 var CCollapseBar = React.createClass({
   render: function() {
     return (
-      <div className="collapse-bar" onClick={this.props.onActivate} />
+      <div className="jl-collapse-bar" onClick={this.props.onActivate} />
     );
   }
 });
@@ -30,8 +30,8 @@ var CAgentSelector = React.createClass({
     });
 
     return (
-      <div className="agent-selector">
-        <span className="label">Chat with</span>
+      <div className="jl-agent-selector">
+        <span className="jl-label">Chat with</span>
         <select value={this.props.agentId} onChange={this.handleChange}>
           {optionNodes}
         </select>
@@ -59,10 +59,10 @@ var CTranscriptBox = React.createClass({
 
         if (e.eventType == "VisitorMessage") {
           return (
-            <span className="transcript-element" key={ts.getTime()}>
-              <span className="timestamp">{ts.toTimeString().slice(0, 9)}</span>
-              <span className="visitor-name">{e.visitorName}</span><br/>
-              <span className="visitor-msg">{e.message}</span>
+            <span className="jl-transcript-element" key={ts.getTime()}>
+              <span className="jl-timestamp">{ts.toTimeString().slice(0, 9)}</span>
+              <span className="jl-visitor-name">{e.visitorName}</span><br/>
+              <span className="jl-visitor-msg">{e.message}</span>
               <br/>
             </span>
           );
@@ -73,19 +73,19 @@ var CTranscriptBox = React.createClass({
           })[0].displayName;
 
           return (
-            <span className="transcript-element agent" key={ts.getTime()}>
-              <span className="timestamp">{ts.toTimeString().slice(0, 9)}</span>
-              <span className="agent-name">{agentName}</span><br/>
-              <span className="agent-msg">{e.message}</span>
+            <span className="jl-transcript-element jl-agent" key={ts.getTime()}>
+              <span className="jl-timestamp">{ts.toTimeString().slice(0, 9)}</span>
+              <span className="jl-agent-name">{agentName}</span><br/>
+              <span className="jl-agent-msg">{e.message}</span>
               <br/>
             </span>
           );
         }
         else if (e.eventType == "VisitorStatusChange") {
           return (
-            <span className="transcript-element" key={ts.getTime()}>
-              <span className="timestamp">{ts.toTimeString().slice(0, 9)}</span><br/>
-              <span className="visitor-status-change">
+            <span className="jl-transcript-element" key={ts.getTime()}>
+              <span className="jl-timestamp">{ts.toTimeString().slice(0, 9)}</span><br/>
+              <span className="jl-visitor-status-change">
                 {self.props.visitorName} has changed their status to {e.status}
               </span>
               <br/>
@@ -98,9 +98,9 @@ var CTranscriptBox = React.createClass({
           })[0].displayName;
 
           return (
-            <span className="transcript-element agent" key={ts.getTime()}>
-              <span className="timestamp">{ts.toTimeString().slice(0, 9)}</span><br/>
-              <span className="agent-status-change">
+            <span className="jl-transcript-element jl-agent" key={ts.getTime()}>
+              <span className="jl-timestamp">{ts.toTimeString().slice(0, 9)}</span><br/>
+              <span className="jl-agent-status-change">
                 {agentName} has changed their status to {e.status}
               </span>
               <br/>
@@ -111,11 +111,11 @@ var CTranscriptBox = React.createClass({
     }
 
     return (
-      <div className={"transcript-box-wrap" + (this.props.connected ? "" : " disconnected")}>
-        <div className="transcript-box" ref={function(c) { this.transcriptBox = c; }.bind(this)}>
+      <div className={"jl-transcript-box-wrap" + (this.props.connected ? "" : " jl-disconnected")}>
+        <div className="jl-transcript-box" ref={function(c) { this.transcriptBox = c; }.bind(this)}>
           {transcriptElements}
         </div>
-        <div className="cover">
+        <div className="jl-cover">
           <span>Chat disconnected. To resume, click connect or send a new message.</span>
         </div>
       </div>
@@ -163,7 +163,7 @@ var CMessageForm = React.createClass({
 
   render: function() {
     return (
-      <div className={"message-form" + (this.props.connected ? "" : " disconnected")}>
+      <div className={"jl-message-form" + (this.props.connected ? "" : " jl-disconnected")}>
         <textarea
           value={this.props.message}
           onChange={this.handleChange}
@@ -183,11 +183,11 @@ var CNameField = React.createClass({
 
   render: function() {
     return (
-      <div className="name-field">
-        <span className="label">Name</span>
-        <div className="input-wrap">
+      <div className="jl-name-field">
+        <span className="jl-label">Name</span>
+        <div className="jl-input-wrap">
           <input
-            className="txt-name"
+            className="jl-txt-name"
             disabled={this.props.initiated}
             type="text"
             placeholder="Your name"
@@ -257,7 +257,7 @@ var CJLoopClassicExpanded = React.createClass({
 
   render: function() {
     return (
-      <div className="jloop-classic expanded">
+      <div className="jl-jloop-classic jl-widget-expanded">
         <CAgentSelector
           agents={this.props.agents}
           agentId={this.props.agentId}
@@ -280,6 +280,9 @@ var CJLoopClassicExpanded = React.createClass({
           onConnect={this.handleConnect}
           onDisconnect={this.handleDisconnect} />
         <button onClick={this.handleClearSession}>Clear session</button>
+        <span className="jl-powered-by">
+          Powered by <a href="http://recursiveloop.org/projects?scrollTo=jloop">JLoop</a>
+        </span>
       </div>
     );
   }
@@ -288,9 +291,12 @@ var CJLoopClassicExpanded = React.createClass({
 var CJLoopClassicExpandedNoAgents = React.createClass({
   render: function() {
     return (
-      <div className="jloop-classic expanded">
-        <div className="no-agents">
-          <span>Unfortunately, there is no one available to chat right now.</span>
+      <div className="jl-jloop-classic jl-widget-expanded">
+        <div className="jl-no-agents">
+          <span className="jl-no-agents-msg">Unfortunately, there is no one available to chat right now.</span>
+          <span className="jl-powered-by">
+            Powered by <a href="http://recursiveloop.org/projects?scrollTo=jloop">JLoop</a>
+          </span>
         </div>
       </div>
     );
@@ -301,8 +307,11 @@ var CJLoopClassicCollapsed = React.createClass({
   render: function() {
     return (
       <div
-        className={"jloop-classic collapsed" + (this.props.hasUnread ? " alert" : "")}
+        className={"jl-jloop-classic jl-widget-collapsed" + (this.props.hasUnread ? " jl-alert" : "")}
         onClick={this.props.onExpand}>
+
+        <span className="jl-logo"></span>
+        <span className="jl-live-chat">Live Chat</span>
       </div>
     );
   }
@@ -317,7 +326,7 @@ var CJLoopClassic = React.createClass({
     self.setState({ transcript: self.jlchat.getTranscript() });
 
     setTimeout(function() {
-      if (self.state.connected && !self.state.initiated) {
+      if (self.state.connected && self.state.transcript.isEmpty()) {
         var agent = self.state.agents.filter(function(a) {
           return a.agentId == self.state.agentId;
         })[0];
@@ -343,7 +352,7 @@ var CJLoopClassic = React.createClass({
   handleExpand: function() {
     this.setState({ expanded: true });
 
-    if (this.state.connected && !this.state.initiated) {
+    if (this.state.connected && this.state.transcript.isEmpty()) {
       this.doWelcomeMessage();
     }
   },
@@ -409,14 +418,7 @@ var CJLoopClassic = React.createClass({
   },
 
   handleConnect: function() {
-    this.jlchat.openConnection(this.state.visitorName, this.state.agentId);
-
-    var e = new jloop.model.VisitorStatusChange({
-      visitorId: this.jlchat.visitorId,
-      customerId: this.jlchat.customerId,
-      agentId: this.state.agentId,
-      status: "online"
-    });
+    var e = this.jlchat.openConnection(this.state.visitorName, this.state.agentId);
 
     this.setState({
       connected: true,
@@ -425,20 +427,13 @@ var CJLoopClassic = React.createClass({
 
     jloop.session.put("connected", true);
 
-    if (!this.state.initiated) {
+    if (this.state.transcript.isEmpty()) {
       this.doWelcomeMessage();
     }
   },
 
   handleDisconnect: function() {
-    this.jlchat.closeConnection(this.state.agentId);
-
-    var e = new jloop.model.VisitorStatusChange({
-      visitorId: this.jlchat.visitorId,
-      customerId: this.jlchat.customerId,
-      agentId: this.state.agentId,
-      status: "offline"
-    });
+    var e = this.jlchat.closeConnection(this.state.visitorName, this.state.agentId);
 
     this.setState({
       connected: false,
@@ -476,6 +471,8 @@ var CJLoopClassic = React.createClass({
       self.jlchat.setOnAgentStatusChange(self.handleAgentStatusChange);
 
       self.jlchat.fetchAgents(function(agents) {
+        console.log(agents);
+
         self.setState({
           agents: agents.agents,
           agentId: agents.agents.length > 0 ? agents.agents[0].agentId : null
@@ -507,7 +504,7 @@ var CJLoopClassic = React.createClass({
       this.state.hasUnread = false;
 
       return (
-        <div className="widget-wrap">
+        <div className="jl-widget-wrap jl-expanded">
           <CCollapseBar
             onActivate={this.handleCollapse} />
           <CJLoopClassicExpanded
@@ -530,7 +527,7 @@ var CJLoopClassic = React.createClass({
     }
     else if (this.state.expanded && available.length === 0) {
       return (
-        <div className="widget-wrap">
+        <div className="jl-widget-wrap jl-expanded">
           <CCollapseBar
             onActivate={this.handleCollapse} />
           <CJLoopClassicExpandedNoAgents />
@@ -539,7 +536,7 @@ var CJLoopClassic = React.createClass({
     }
     else {
       return (
-        <div className="widget-wrap">
+        <div className="jl-widget-wrap jl-collapsed">
           <CJLoopClassicCollapsed
             onExpand={this.handleExpand}
             hasUnread={this.state.hasUnread} />

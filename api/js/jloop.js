@@ -145,6 +145,8 @@ var jLoopChat = function(spec, my) {
     console.log("Sending...");
     console.log(msg);
     my.websocket.send(JSON.stringify(msg));
+
+    return msg;
   };
 
   /**
@@ -155,6 +157,7 @@ var jLoopChat = function(spec, my) {
 
     var event = new model.VisitorStatusChange({
       visitorId: that.visitorId,
+      visitorName: visitorName,
       customerId: that.customerId,
       agentId: agentId,
       status: "online"
@@ -166,16 +169,19 @@ var jLoopChat = function(spec, my) {
     console.log(event);
 
     my.websocket.send(JSON.stringify(event));
+
+    return event;
   };
 
   /**
    * @method closeConnection
    */
-  that.closeConnection = function(agentId) {
+  that.closeConnection = function(visitorName, agentId) {
     _checkInitialised();
 
     var event = new model.VisitorStatusChange({
       visitorId: that.visitorId,
+      visitorName: visitorName,
       customerId: that.customerId,
       agentId: agentId,
       status: "offline"
@@ -187,6 +193,8 @@ var jLoopChat = function(spec, my) {
     console.log(event);
 
     my.websocket.send(JSON.stringify(event));
+
+    return event;
   };
 
   return that;

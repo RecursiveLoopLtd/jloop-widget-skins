@@ -105,7 +105,15 @@ module.exports = function(grunt) {
     copy: {
       demo: {
         files: [
-          { expand: true, cwd: "<%= demoSrcDir %>", src: ["demo.html"], dest: "<%= demoBuildDir %>/" },
+          {
+            expand: true,
+            cwd: "<%= demoSrcDir %>",
+            src: [
+              "demo.html",
+              "img/**"
+            ],
+            dest: "<%= demoBuildDir %>/"
+          },
         ]
       },
     },
