@@ -273,7 +273,16 @@ $labelColour: rgb(50, 50, 50);
   }
 
   .jl-alert {
-    background-color: $alertColour;
+    @include animation(jl-alert 4s linear infinite);
   }
+
+  @include keyframes(jl-alert) {
+    0%, 100% {
+      background: $collapsedWidgetColour;
+    }
+    50% {
+      background: $alertColour;
+    }
+  };
 }
 
