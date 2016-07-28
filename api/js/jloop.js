@@ -1,9 +1,8 @@
+var config = require("./config");
 var model = require("./model");
 var session = require("./session");
 var utils = require("./utils");
 var err = require("./exceptions");
-
-var SERVER_LOOKUP_BASE_URI ="localhost:9090/core-lookup/api";
 
 /**
  * @class JLoopChat
@@ -88,7 +87,7 @@ var jLoopChat = function(spec, my) {
     that.visitorId = session.get("visitorId");
 
     var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "http://" + SERVER_LOOKUP_BASE_URI + "/endpoint?cid=" + that.customerId, true);
+    xhttp.open("GET", "http://" + config.serverLookupBaseUri + "/endpoint?cid=" + that.customerId, true);
     xhttp.onreadystatechange = function() {
       if (xhttp.readyState == 4) {
         if (xhttp.status == 200) {
@@ -203,6 +202,7 @@ var jLoopChat = function(spec, my) {
 module.exports = {
   jLoopChat: jLoopChat,
   model: model,
-  session: session
+  session: session,
+  error: err
 };
 

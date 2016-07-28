@@ -1,6 +1,10 @@
 var React = require("react");
 var ReactDOM = require("react-dom");
 
+function handleError(e) {
+  console.log(e); // TODO
+}
+
 var CCollapseBar = React.createClass({
   render: function() {
     return (
@@ -68,9 +72,11 @@ var CTranscriptBox = React.createClass({
           );
         }
         else if (e.eventType == "AgentMessage") {
-          var agentName = self.props.agents.filter(function(a) {
+          var agent = self.props.agents.filter(function(a) {
             return a.agentId == e.agentId;
-          })[0].displayName;
+          });
+
+          var agentName = agent.length > 0 ? agent[0].displayName : "Agent";
 
           return (
             <span className="jl-transcript-element jl-agent" key={ts.getTime()}>
@@ -93,9 +99,11 @@ var CTranscriptBox = React.createClass({
           );
         }
         else if (e.eventType == "AgentStatusChange") {
-          var agentName = self.props.agents.filter(function(a) {
+          var agent = self.props.agents.filter(function(a) {
             return a.agentId == e.agentId;
-          })[0].displayName;
+          });
+
+          var agentName = agent.length > 0 ? agent[0].displayName : "Agent";
 
           return (
             <span className="jl-transcript-element jl-agent" key={ts.getTime()}>
@@ -326,10 +334,14 @@ var CJLoopClassic = React.createClass({
     self.setState({ transcript: self.jlchat.getTranscript() });
 
     setTimeout(function() {
-      if (self.state.connected && self.state.transcript.isEmpty()) {
+      console.log(self.state.agentId);
+
+      if (self.state.connected && self.state.transcript.isEmpty() && self.state.agents.length > 0) {
         var agent = self.state.agents.filter(function(a) {
           return a.agentId == self.state.agentId;
         })[0];
+
+        console.log(agent);
 
         var msg = new jloop.model.AgentMessage({
           customerId: self.jlchat.customerId,
@@ -363,6 +375,7 @@ var CJLoopClassic = React.createClass({
   },
 
   handleAgentChange: function(value) {
+    console.log(value);
     this.setState({ agentId: value });
   },
 
@@ -470,18 +483,26 @@ var CJLoopClassic = React.createClass({
       self.jlchat.setOnAgentMessage(self.handleAgentMessage);
       self.jlchat.setOnAgentStatusChange(self.handleAgentStatusChange);
 
-      self.jlchat.fetchAgents(function(agents) {
-        console.log(agents);
+      self.jlchat.fetchAgents(function(agentsObj) {
+        console.log(agentsObj); // TODO
+
+        var agents = agentsObj.agents;
+
+        available = agents.filter(function(a) {
+          return a.status.status == "online";
+        });
+
+        console.log(available);
 
         self.setState({
-          agents: agents.agents,
-          agentId: agents.agents.length > 0 ? agents.agents[0].agentId : null
+          agents: agents,
+          agentId: available.length > 0 ? available[0].agentId : null
         });
       }, function(err) {
-        throw new JLoopException("jlchat.fetchAgents returned code " + err);
+        handleError(new jloop.error.JLoopException("jlchat.fetchAgents returned code " + err));
       });
     }, function() {
-      throw new JLoopException("jlchat failed to initialise");
+      handleError(new jloop.error.JLoopException("jlchat failed to initialise"));
     });
 
     return {
@@ -491,7 +512,7 @@ var CJLoopClassic = React.createClass({
       visitorName: jloop.session.get("visitorName") || "Anon",
       agents: [],
       agentId: null,
-      transcript: null
+      transcript: this.jlchat.getTranscript()
     };
   },
 
