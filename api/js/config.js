@@ -1,2 +1,2 @@
-exports.serverLookupBaseUri = "localhost:9090/core-lookup/api";
+exports.serverLookupBaseUri = "52.36.255.102:9090/core-lookup/api";
 

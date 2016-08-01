@@ -1,13 +1,13 @@
 @import 'mixins';
 
 $widgetTop: 100px;
-$widgetHeight: 440px;
+$widgetHeight: 450px;
 $widgetWidth: 400px;
 $transcriptBoxHeight: 230px;
 $collapsedWidth: 50px;
 $collapsedHeight: 100px;
 $collapseBarWidth: 30px;
-$collapseBarHeight: 440px;
+$collapseBarHeight: $widgetHeight;
 
 $widgetBorderRadius: 8px;
 $widgetBorderColour: rgb(50, 50, 50);
