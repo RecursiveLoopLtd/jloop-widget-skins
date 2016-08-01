@@ -1,2 +1,0 @@
-window.jloop = require("./jloop");
-

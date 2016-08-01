@@ -12,13 +12,16 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-browserify");
 
   grunt.initConfig({
-    apiSrcDir: "api",
-    apiBuildDir: "build/api",
-    apiDistDir: "dist/api",
-    apiTestDir: "api/test",
+    buildDir: "build",
+    distDir: "dist",
+    skinsSrcDir: "src",
+    skinsBuildDir: "<%= buildDir %>/skins",
+    skinsDistDir: "<%= distDir %>/skins",
+    skinsTestDir: "src/test",
     demoSrcDir: "demo",
-    demoBuildDir: "build/demo",
-    demoDistDir: "dist/demo",
+    demoBuildDir: "<%= buildDir %>/demo",
+    demoDistDir: "<%= distDir %>/demo",
+    vendorDir: "vendor",
     pkg: grunt.file.readJSON("package.json"),
     banner: "/*!\n" +
             " * <%= pkg.name %>\n" +
@@ -28,10 +31,10 @@ module.exports = function(grunt) {
             " */\n",
     shell: {
       cleanDist: {
-        command: "rm -R <%= apiDistDir %>/* <%= demoDistDir %>/*"
+        command: "rm -R <%= distDir %>"
       },
       cleanBuild: {
-        command: "rm -R <%= apiBuildDir %>/* <%= demoBuildDir %>/*"
+        command: "rm -R <%= buildDir %>"
       }
     },
     connect: {
@@ -41,9 +44,9 @@ module.exports = function(grunt) {
           port: 8888,
           keepalive: true,
           base: {
-            path: "build",
+            path: "<%= buildDir %>",
             options: {
-              index: "demo/demo.html"
+              index: "<%= demoSrcDir %>/demo.html"
             }
           }
         }
@@ -56,7 +59,7 @@ module.exports = function(grunt) {
           banner: "<%= banner %>",
         },
         files: {
-          "<%= demoBuildDir %>/css/styles.css": "<%= demoSrcDir %>/scss/styles.scss"
+          "<%= skinsBuildDir %>/css/jloopClassic.css": "<%= skinsSrcDir %>/scss/jloopClassic.scss",
         }
       }
     },
@@ -65,19 +68,19 @@ module.exports = function(grunt) {
         sourceMap: true,
         presets: ["react"]
       },
-      demo: {
+      skins: {
         files: [{
           "expand": true,
-          "cwd": "<%= demoSrcDir %>/js",
+          "cwd": "<%= skinsSrcDir %>/js",
           "src": "**/*.js",
-          "dest": "<%= demoBuildDir %>/tmp",
+          "dest": "<%= skinsBuildDir %>/tmp",
         }]
       }
     },
     browserify: {
-      api: {
+      skins: {
         files: {
-          "<%= apiBuildDir %>/jloop-compiled.js": [ "<%= apiSrcDir %>/**/*.js" ]
+          "<%= skinsBuildDir %>/jloopClassic-compiled.js": [ "<%= skinsBuildDir %>/tmp/**/*.js" ]
         },
         options: {
         }
@@ -91,9 +94,9 @@ module.exports = function(grunt) {
       }
     },
     uglify: {
-      api: {
+      skins: {
         files: {
-          "<%= apiBuildDir %>/jloop.min.js": ["<%= apiBuildDir %>/jloop-compiled.js"]
+          "<%= skinsBuildDir %>/jloopClassic.min.js": ["<%= skinsBuildDir %>/jloopClassic-compiled.js"]
         }
       },
       demo: {
@@ -103,6 +106,18 @@ module.exports = function(grunt) {
       }
     },
     copy: {
+      skins: {
+        files: [
+          {
+            expand: true,
+            cwd: "<%= skinsSrcDir %>",
+            src: [
+              "img/**",
+            ],
+            dest: "<%= skinsBuildDir %>/"
+          },
+        ]
+      },
       demo: {
         files: [
           {
@@ -110,35 +125,59 @@ module.exports = function(grunt) {
             cwd: "<%= demoSrcDir %>",
             src: [
               "demo.html",
-              "img/**"
             ],
             dest: "<%= demoBuildDir %>/"
+          },
+        ]
+      },
+      vendor: {
+        files: [
+          {
+            expand: true,
+            cwd: ".",
+            src: [
+              "<%= vendorDir %>/**",
+            ],
+            dest: "<%= buildDir %>/"
+          },
+        ]
+      },
+      dist: {
+        files: [
+          {
+            expand: true,
+            cwd: "<%= skinsBuildDir %>",
+            src: [
+              "**",
+              "!tmp/**"
+            ],
+            dest: "<%= distDir %>/"
           },
         ]
       },
     },
     jshint: {
       all: [
-        "<%= apiSrcDir %>/js/**/*.js",
-        "<%= apiDemoDir %>/js/**/*.js",
+        "<%= skinsSrcDir %>/js/**/*.js",
+        "<%= skinsDemoDir %>/js/**/*.js",
       ]
     },
     karma: {
       unit: {
-        configFile: "<%= apiTestDir %>/karma-unit.conf.js",
+        configFile: "<%= skinsTestDir %>/karma-unit.conf.js",
         autoWatch: false,
         singleRun: true
       },
       unit_auto: {
-        configFile: "<%= apiTestDir %>/karma-unit.conf.js",
+        configFile: "<%= skinsTestDir %>/karma-unit.conf.js",
         autoWatch: true,
         singleRun: false
       }
     },
     watch: {
-      apiJs: {
+      skinsJs: {
         files: [
-          "<%= apiSrcDir %>/js/**/*.js"
+          "<%= skinsSrcDir %>/js/**/*.js"
         ],
         tasks: ["buildJs"]
       },
@@ -168,7 +207,7 @@ module.exports = function(grunt) {
         version: "<%= pkg.version %>",
         url: "<%= pkg.homepage %>",
         options: {
-          paths: ["<%= apiSrcDir %>/js"],
+          paths: ["<%= skinsSrcDir %>/js"],
           outdir: "docs"
         }
       }
@@ -179,6 +218,6 @@ module.exports = function(grunt) {
   grunt.registerTask("docs", ["yuidoc"]);
   grunt.registerTask("test", ["karma:unit_auto"]);
   grunt.registerTask("buildJs", [/*test, */"babel", "browserify", "uglify", "docs"]);
-  grunt.registerTask("build", ["sass", "buildJs", "copy:demo"]);
+  grunt.registerTask("build", ["clean", "sass", "buildJs", "copy:skins", "copy:demo", "copy:vendor", "copy:dist"]);
   grunt.registerTask("run", ["connect:server"]);
 };

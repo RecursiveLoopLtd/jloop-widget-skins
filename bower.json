@@ -1,10 +1,10 @@
 {
-  "name": "jloop-widget-api",
+  "name": "jloop-widget-skins",
   "version": "0.0.0",
   "authors": [
     "Rob Jinman <admin@robjinman.com>"
   ],
-  "description": "The JLoop widget API",
+  "description": "JLoop widget skins",
   "license": "Proprietary",
   "private": true,
   "ignore": [
@@ -13,5 +13,6 @@
     "vendor"
   ],
   "dependencies": {
+    "jloop-widget-api": "recursiveloopltd/jloop-widget-api"
   }
 }

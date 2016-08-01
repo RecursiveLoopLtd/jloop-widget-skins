@@ -1,0 +1,277 @@
+/*!
+ * jloop-widget-skins
+ * @author Rob Jinman
+ * @version 0.0.0
+ * Copyright Recursive Loop Ltd
+ */
+
+.jl-vertical-text {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+
+.jl-widget-wrap {
+  position: fixed;
+  right: 0;
+  top: 100px;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  z-index: 9;
+  font-family: Helvetica;
+  font-size: 16px;
+  color: #323232;
+}
+.jl-widget-wrap .jl-collapse-bar {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  position: relative;
+  background-color: white;
+  float: left;
+  top: 0px;
+  height: 450px;
+  width: 30px;
+  border-left: #323232 1px solid;
+  border-top: #323232 1px solid;
+  border-bottom: #323232 1px solid;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  cursor: pointer;
+}
+.jl-widget-wrap .jl-collapse-bar:hover {
+  background-color: honeydew;
+}
+.jl-widget-wrap .jl-widget-collapsed {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  position: relative;
+  top: 350px;
+  width: 50px;
+  height: 100px;
+  background-color: white;
+  border: #323232 1px solid;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  -webkit-box-shadow: -5px 5px 3px -2px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: -5px 5px 3px -2px rgba(0, 0, 0, 0.5);
+  -o-box-shadow: -5px 5px 3px -2px rgba(0, 0, 0, 0.5);
+  box-shadow: -5px 5px 3px -2px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+.jl-widget-wrap .jl-widget-collapsed:hover {
+  background-color: honeydew;
+}
+.jl-widget-wrap .jl-widget-collapsed .jl-logo {
+  position: absolute;
+  top: 10px;
+  width: 80%;
+  height: 40px;
+  left: 10%;
+  background-image: url("../img/jloop.svg");
+  /* TODO: Path to public server */
+  background-repeat: no-repeat;
+  -webkit-background-size: contain;
+  -moz-background-size: contain;
+  -o-background-size: contain;
+  background-size: contain;
+}
+.jl-widget-wrap .jl-widget-collapsed .jl-live-chat {
+  text-transform: lowercase;
+  position: absolute;
+  bottom: 5px;
+  text-align: center;
+}
+.jl-widget-wrap.jl-expanded {
+  -webkit-box-shadow: -5px 5px 3px -2px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: -5px 5px 3px -2px rgba(0, 0, 0, 0.5);
+  -o-box-shadow: -5px 5px 3px -2px rgba(0, 0, 0, 0.5);
+  box-shadow: -5px 5px 3px -2px rgba(0, 0, 0, 0.5);
+}
+.jl-widget-wrap .jl-widget-expanded {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  position: relative;
+  float: right;
+  width: 348px;
+  height: 450px;
+  padding: 10px 5px 0 5px;
+  background-color: white;
+  border: #323232 1px solid;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-powered-by {
+  position: absolute;
+  bottom: 4px;
+  left: 5px;
+  font-size: 0.7em;
+  color: #323232;
+  font-weight: normal;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-powered-by a {
+  text-decoration: none;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-no-agents {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.85);
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #323232;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-no-agents .jl-no-agents-msg {
+  display: block;
+  position: relative;
+  top: 40%;
+  width: 90%;
+  margin-right: 10%;
+  text-align: right;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-label {
+  float: left;
+  font-weight: bold;
+  margin-right: 10px;
+  line-height: 30px;
+  color: #323232;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-input-wrap {
+  overflow: hidden;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-name-field {
+  overflow: hidden;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-name-field .jl-txt-name {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  height: 30px;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-message-form > textarea {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  height: 70px;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap {
+  position: relative;
+  width: 100%;
+  height: 230px;
+  margin: 5px 0 5px 0;
+  overflow: hidden;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap .jl-transcript-box {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  background-color: #fafafa;
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  padding: 0 5px 0 5px;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap .jl-transcript-box .jl-transcript-element {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap .jl-transcript-box .jl-transcript-element.jl-agent {
+  text-align: right;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap .jl-transcript-box .jl-transcript-element .jl-timestamp {
+  color: #323232;
+  font-size: 0.7em;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap .jl-transcript-box .jl-transcript-element .jl-visitor-name {
+  color: #323232;
+  font-size: 0.7em;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap .jl-transcript-box .jl-transcript-element .jl-agent-name {
+  color: #323232;
+  font-size: 0.7em;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap .jl-transcript-box .jl-transcript-element .jl-visitor-msg {
+  color: #32c832;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap .jl-transcript-box .jl-transcript-element .jl-agent-msg {
+  color: #c832c8;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap .jl-transcript-box .jl-transcript-element .jl-visitor-status-change, .jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap .jl-transcript-box .jl-transcript-element .jl-agent-status-change {
+  color: #323232;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap .jl-cover {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.85);
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #323232;
+  visibility: hidden;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap .jl-cover span {
+  display: block;
+  position: relative;
+  top: 40%;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.jl-widget-wrap .jl-widget-expanded .jl-transcript-box-wrap.jl-disconnected > .jl-cover {
+  visibility: visible;
+}
+.jl-widget-wrap .jl-alert {
+  -webkit-animation: jl-alert 4s linear infinite;
+  -moz-transition: jl-alert 4s linear infinite;
+  -o-transition: jl-alert 4s linear infinite;
+  animation: jl-alert 4s linear infinite;
+}
+@-webkit-keyframes jl-alert {
+  0%, 100% {
+    background: white;
+  }
+  50% {
+    background: #dc7878;
+  }
+}
+@-moz-keyframes jl-alert {
+  0%, 100% {
+    background: white;
+  }
+  50% {
+    background: #dc7878;
+  }
+}
+@-o-keyframes jl-alert {
+  0%, 100% {
+    background: white;
+  }
+  50% {
+    background: #dc7878;
+  }
+}
+@keyframes jl-alert {
+  0%, 100% {
+    background: white;
+  }
+  50% {
+    background: #dc7878;
+  }
+}
+
+/*# sourceMappingURL=jloopClassic.css.map */

@@ -334,14 +334,10 @@ var CJLoopClassic = React.createClass({
     self.setState({ transcript: self.jlchat.getTranscript() });
 
     setTimeout(function() {
-      console.log(self.state.agentId);
-
       if (self.state.connected && self.state.transcript.isEmpty() && self.state.agents.length > 0) {
         var agent = self.state.agents.filter(function(a) {
           return a.agentId == self.state.agentId;
         })[0];
-
-        console.log(agent);
 
         var msg = new jloop.model.AgentMessage({
           customerId: self.jlchat.customerId,
@@ -375,7 +371,6 @@ var CJLoopClassic = React.createClass({
   },
 
   handleAgentChange: function(value) {
-    console.log(value);
     this.setState({ agentId: value });
   },
 
@@ -484,15 +479,11 @@ var CJLoopClassic = React.createClass({
       self.jlchat.setOnAgentStatusChange(self.handleAgentStatusChange);
 
       self.jlchat.fetchAgents(function(agentsObj) {
-        console.log(agentsObj); // TODO
-
         var agents = agentsObj.agents;
 
         available = agents.filter(function(a) {
           return a.status.status == "online";
         });
-
-        console.log(available);
 
         self.setState({
           agents: agents,
