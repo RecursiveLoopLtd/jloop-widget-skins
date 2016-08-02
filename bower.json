@@ -5,6 +5,11 @@
     "Rob Jinman <admin@robjinman.com>"
   ],
   "description": "JLoop widget skins",
+  "main": [
+    "dist/jloopClassic-compiled.js",
+    "dist/img/jloop.svg",
+    "dist/css/jloopClassic.css"
+  ],
   "license": "Proprietary",
   "private": true,
   "ignore": [
