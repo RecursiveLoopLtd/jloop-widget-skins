@@ -47,15 +47,23 @@ var CAgentSelector = React.createClass({
 var CTranscriptBox = React.createClass({
   transcriptBox: null,
 
-  // ---
-
-  componentDidMount: function() {
-    this.transcriptBox.scrollTop = this.transcriptBox.scrollHeight;
+  scrollToEnd: function() {
+    if (this.transcriptBox) {
+      this.transcriptBox.scrollTop = this.transcriptBox.scrollHeight;
+    }
   },
+
+  // ---
 
   render: function() {
     var self = this;
     var transcriptElements = [];
+
+    if (self.props.scrolledToEnd) {
+      setTimeout(function() {
+        self.scrollToEnd();
+      }, 0);
+    }
 
     if (self.props.transcript) {
       transcriptElements = self.props.transcript.events.map(function(e) {
@@ -119,8 +127,13 @@ var CTranscriptBox = React.createClass({
     }
 
     return (
-      <div className={"jl-transcript-box-wrap" + (this.props.connected ? "" : " jl-disconnected")}>
-        <div className="jl-transcript-box" ref={function(c) { this.transcriptBox = c; }.bind(this)}>
+      <div className={"jl-transcript-box-wrap" +
+        (this.props.connected ? "" : " jl-disconnected")}>
+
+        <div className="jl-transcript-box"
+          onScroll={this.props.onTranscriptScroll}
+          ref={function(c) { this.transcriptBox = c; }.bind(this)}>
+
           {transcriptElements}
         </div>
         <div className="jl-cover">
@@ -208,86 +221,48 @@ var CNameField = React.createClass({
 });
 
 var CConnectButton = React.createClass({
-  handleDisconnect: function(e) {
-    this.props.onDisconnect();
-  },
-
-  handleConnect: function(e) {
-    this.props.onConnect();
-  },
-
-  // ---
-
   render: function() {
     if (this.props.connected) {
       return (
-        <button onClick={this.handleDisconnect}>Disconnect</button>
+        <button onClick={this.props.onDisconnect}>Disconnect</button>
       );
     }
     else {
       return (
-        <button onClick={this.handleConnect}>Connect</button>
+        <button onClick={this.props.onConnect}>Connect</button>
       );
     }
   }
 });
 
 var CJLoopClassicExpanded = React.createClass({
-  handleVisitorNameChange: function(value) {
-    this.props.onVisitorNameChange(value);
-  },
-
-  handleAgentChange: function(value) {
-    this.props.onAgentChange(value);
-  },
-
-  handleMessageChange: function(value) {
-    this.props.onMessageChange(value);
-  },
-
-  handleMessageSubmit: function() {
-    this.props.onMessageSubmit();
-  },
-
-  handleConnect: function() {
-    this.props.onConnect();
-  },
-
-  handleDisconnect: function() {
-    this.props.onDisconnect();
-  },
-
-  handleClearSession: function() {
-    this.props.onClearSession();
-  },
-
-  // ---
-
   render: function() {
     return (
       <div className="jl-jloop-classic jl-widget-expanded">
         <CAgentSelector
           agents={this.props.agents}
           agentId={this.props.agentId}
-          onAgentChange={this.handleAgentChange} />
+          onAgentChange={this.props.onAgentChange} />
         <CTranscriptBox
           connected={this.props.connected}
           agents={this.props.agents}
           visitorName={this.props.visitorName}
-          transcript={this.props.transcript} />
+          transcript={this.props.transcript}
+          onTranscriptScroll={this.props.onTranscriptScroll}
+          scrolledToEnd={this.props.scrolledToEnd} />
         <CNameField
           initiated={this.props.initiated}
           visitorName={this.props.visitorName}
-          onVisitorNameChange={this.handleVisitorNameChange} />
+          onVisitorNameChange={this.props.onVisitorNameChange} />
         <CMessageForm message={this.props.message}
           connected={this.props.connected}
-          onMessageChange={this.handleMessageChange}
-          onSubmit={this.handleMessageSubmit} />
+          onMessageChange={this.props.onMessageChange}
+          onSubmit={this.props.onMessageSubmit} />
         <CConnectButton
           connected={this.props.connected}
-          onConnect={this.handleConnect}
-          onDisconnect={this.handleDisconnect} />
-        <button onClick={this.handleClearSession}>Clear session</button>
+          onConnect={this.props.onConnect}
+          onDisconnect={this.props.onDisconnect} />
+        <button onClick={this.props.onClearSession}>Clear session</button>
         <span className="jl-powered-by">
           Powered by <a href="http://recursiveloop.org/projects?scrollTo=jloop">JLoop</a>
         </span>
@@ -301,7 +276,9 @@ var CJLoopClassicExpandedNoAgents = React.createClass({
     return (
       <div className="jl-jloop-classic jl-widget-expanded">
         <div className="jl-no-agents">
-          <span className="jl-no-agents-msg">Unfortunately, there is no one available to chat right now.</span>
+          <span className="jl-no-agents-msg">
+            Unfortunately, there is no one available to chat right now.
+          </span>
           <span className="jl-powered-by">
             Powered by <a href="http://recursiveloop.org/projects?scrollTo=jloop">JLoop</a>
           </span>
@@ -315,7 +292,9 @@ var CJLoopClassicCollapsed = React.createClass({
   render: function() {
     return (
       <div
-        className={"jl-jloop-classic jl-widget-collapsed" + (this.props.hasUnread ? " jl-alert" : "")}
+        className={"jl-jloop-classic jl-widget-collapsed" +
+          (this.props.hasUnread ? " jl-alert" : "")}
+
         onClick={this.props.onExpand}>
 
         <span className="jl-logo"></span>
@@ -331,10 +310,16 @@ var CJLoopClassic = React.createClass({
     var transcript = self.jlchat.getTranscript();
 
     transcript.clear();
-    self.setState({ transcript: self.jlchat.getTranscript() });
+    self.setState({
+      transcript: self.jlchat.getTranscript(),
+      scrolledToEnd: true
+    });
 
     setTimeout(function() {
-      if (self.state.connected && self.state.transcript.isEmpty() && self.state.agents.length > 0) {
+      if (self.state.connected &&
+        self.state.transcript.isEmpty() &&
+        self.state.agents.length > 0) {
+
         var agent = self.state.agents.filter(function(a) {
           return a.agentId == self.state.agentId;
         })[0];
@@ -348,7 +333,10 @@ var CJLoopClassic = React.createClass({
         });
 
         transcript.addEvent(msg);
-        self.setState({ transcript: self.jlchat.getTranscript() });
+        self.setState({
+          transcript: self.jlchat.getTranscript(),
+          scrolledToEnd: true
+        });
       }
     }, 5000);
   },
@@ -392,7 +380,8 @@ var CJLoopClassic = React.createClass({
     this.setState({
       connected: true,
       initiated: true,
-      transcript: this.jlchat.getTranscript()
+      transcript: this.jlchat.getTranscript(),
+      scrolledToEnd: true
     });
 
     jloop.session.put("connected", true);
@@ -402,7 +391,8 @@ var CJLoopClassic = React.createClass({
   handleAgentMessage: function(msg) {
     this.setState({
       transcript: this.jlchat.getTranscript(),
-      hasUnread: !this.state.expanded
+      hasUnread: !this.state.expanded,
+      scrolledToEnd: true
     });
   },
 
@@ -420,6 +410,7 @@ var CJLoopClassic = React.createClass({
 
     this.setState({
       transcript: this.jlchat.getTranscript(),
+      scrolledToEnd: true,
       agents: agents,
       hasUnread: !this.state.expanded
     });
@@ -430,7 +421,8 @@ var CJLoopClassic = React.createClass({
 
     this.setState({
       connected: true,
-      transcript: this.jlchat.getTranscript()
+      transcript: this.jlchat.getTranscript(),
+      scrolledToEnd: true
     });
 
     jloop.session.put("connected", true);
@@ -445,7 +437,8 @@ var CJLoopClassic = React.createClass({
 
     this.setState({
       connected: false,
-      transcript: this.jlchat.getTranscript()
+      transcript: this.jlchat.getTranscript(),
+      scrolledToEnd: true
     });
 
     jloop.session.put("connected", false);
@@ -457,10 +450,17 @@ var CJLoopClassic = React.createClass({
       connected: true,
       initiated: false,
       visitorName: "Anon",
-      transcript: null
+      transcript: null,
+      scrolledToEnd: true
     });
 
     this.doWelcomeMessage();
+  },
+
+  handleTranscriptScroll: function() {
+    this.setState({
+      scrolledToEnd: false
+    });
   },
 
   // ---
@@ -473,7 +473,10 @@ var CJLoopClassic = React.createClass({
     });
 
     self.jlchat.initialise(function() {
-      self.setState({ transcript: self.jlchat.getTranscript() });
+      self.setState({
+        transcript: self.jlchat.getTranscript(),
+        scrolledToEnd: true
+      });
 
       self.jlchat.setOnAgentMessage(self.handleAgentMessage);
       self.jlchat.setOnAgentStatusChange(self.handleAgentStatusChange);
@@ -503,7 +506,8 @@ var CJLoopClassic = React.createClass({
       visitorName: jloop.session.get("visitorName") || "Anon",
       agents: [],
       agentId: null,
-      transcript: this.jlchat.getTranscript()
+      transcript: this.jlchat.getTranscript(),
+      scrolledToEnd: true
     };
   },
 
@@ -533,7 +537,9 @@ var CJLoopClassic = React.createClass({
             onMessageSubmit={this.handleMessageSubmit}
             onConnect={this.handleConnect}
             onDisconnect={this.handleDisconnect}
-            onClearSession={this.handleClearSession} />
+            onClearSession={this.handleClearSession}
+            onTranscriptScroll={this.handleTranscriptScroll}
+            scrolledToEnd={this.state.scrolledToEnd} />
         </div>
       );
     }
