@@ -53,7 +53,7 @@ module.exports = function(grunt) {
       }
     },
     sass: {
-      demo: {
+      skins: {
         options: {
           style: "expanded",
           banner: "<%= banner %>",
@@ -193,11 +193,17 @@ module.exports = function(grunt) {
         ],
         tasks: ["buildJs"]
       },
-      demoScss: {
+      skinsScss: {
         files: [
-          "<%= demoSrcDir %>/scss/**/*.scss"
+          "<%= skinsSrcDir %>/scss/**/*.scss"
         ],
-        tasks: ["sass:demo"]
+        tasks: ["sass:skins"]
+      },
+      skinsResources: {
+        files: [
+          "<%= skinsSrcDir %>/img/**"
+        ],
+        tasks: ["copy:skins"]
       }
     },
     yuidoc: {

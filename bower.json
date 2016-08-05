@@ -8,6 +8,9 @@
   "main": [
     "dist/jloopClassic-compiled.js",
     "dist/img/jloop.svg",
+    "dist/img/clear.png",
+    "dist/img/connected.png",
+    "dist/img/disconnected.png",
     "dist/css/jloopClassic.css"
   ],
   "license": "Proprietary",
