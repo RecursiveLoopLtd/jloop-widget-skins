@@ -1,3 +1,6 @@
-Runtime dependencies are installed via npm and baked in with browserify. This creates large source files, even after minification.
+Runtime dependencies are installed via npm and baked in with browserify. This creates large source files even after minification.
 
+- Different transcript per agent
+- Unit testing
+- Break jloopClassic into reusable components
 

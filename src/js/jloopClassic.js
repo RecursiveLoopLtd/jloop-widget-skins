@@ -1,6 +1,22 @@
 var React = require("react");
 var ReactDOM = require("react-dom");
 
+function availableAgents(agentList) {
+  return agentList.filter(function(agent) {
+    return agent.status.status == "online";
+  });
+}
+
+function agentListToMap(agentList) {
+  var m = {};
+
+  for (var i = 0; i < agentList.length; ++i) {
+    m[agentList[i].agentId] = agentList[i];
+  }
+
+  return m;
+}
+
 function handleError(e) {
   console.log(e); // TODO
 }
@@ -214,9 +230,7 @@ var CAgentSelector = React.createClass({
   // ---
 
   render: function() {
-    available = this.props.agents.filter(function(a) {
-      return a.status.status == "online";
-    });
+    var available = availableAgents(this.props.agents);
 
     var optionNodes = available.map(function(a) {
       return (
@@ -415,20 +429,30 @@ var CJLoopClassic = React.createClass({
   },
 
   handleAgentStatusChange: function(e) {
-    var agents = this.state.agents;
-    agents.forEach(function(a) {
-      if (a.agentId == e.agentId) {
-        a.status = new jloop.model.AgentStatus({
-          agentId: e.agentId,
-          status: e.status,
-          timestamp: e.timestamp
-        });
-      }
+    var agentId = this.state.agentId;
+    var agentMap = agentListToMap(this.state.agents);
+    var agent = agentMap[agentId];
+
+    agentMap[e.agentId].status = new jloop.model.AgentStatus({
+      agentId: e.agentId,
+      status: e.status,
+      timestamp: e.timestamp
     });
+
+    var available = availableAgents(this.state.agents);
+
+    if (available.length === 0) {
+      agentId = null;
+    }
+    else {
+      if (!agentMap.hasOwnProperty(agentId) || agentMap[agentId].status.status !== "online") {
+        agentId = available[0].agentId;
+      }
+    }
 
     this.setState({
       scrolledToEnd: true,
-      agents: agents,
+      agentId: agentId,
       hasUnread: !this.state.expanded
     });
   },
@@ -498,9 +522,7 @@ var CJLoopClassic = React.createClass({
       self.jlchat.fetchAgents(function(agentsObj) {
         var agents = agentsObj.agents;
 
-        available = agents.filter(function(a) {
-          return a.status.status == "online";
-        });
+        var available = availableAgents(agents);
 
         self.setState({
           agents: agents,
@@ -526,9 +548,7 @@ var CJLoopClassic = React.createClass({
   },
 
   render: function() {
-    var available = this.state.agents.filter(function(a) {
-      return a.status.status == "online";
-    });
+    var available = availableAgents(this.state.agents);
 
     if (this.state.expanded && available.length > 0) {
       this.state.hasUnread = false;
